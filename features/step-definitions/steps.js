@@ -1,22 +1,83 @@
-import { Given, When, Then } from '@wdio/cucumber-framework';
+import { Given, When, Then } from "@wdio/cucumber-framework";
 
-import LoginPage from '../pageobjects/login.page.js';
-import checkPage from '../pageobjects/check.page.js';
+import LoginPage from "../pageobjects/login.page.js";
+import checkPage from "../pageobjects/check.page.js";
+import PelangganPage from "../pageobjects/pelanggan.page.js";
 
 const pages = {
-    login: LoginPage
-}
+  login: LoginPage,
+  pelanggan: PelangganPage,
+};
 
-Given(/^I am on the (\w+) page$/, async (page) => {
-    await pages[page].open()
+// =============================================================================
+// Common
+// =============================================================================
+// login
+Given("the user success login to kasiraja website", async () => {
+  await pages.login.open("/");
+  await LoginPage.login("makani@ternak.com", "12345678");
 });
 
-When(/^I login with (\w+) and (.+)$/, async (username, password) => {
-    await LoginPage.login(username, password)
+// click tambah button
+When("the user click tambah button", async () => {
+  await expect(PelangganPage.btnTambah).toBeExisting();
+  await pages.pelanggan.tambahPelanggan();
 });
 
-Then(/^I should see a flash message saying (.*)$/, async (message) => {
-    await expect(checkPage.flashAlert).toBeExisting();
-    await expect(checkPage.flashAlert).toHaveTextContaining(message);
+// click simpan button
+When("the user click simpan button", async () => {
+  await expect(PelangganPage.btnSimpan).toBeExisting();
+  await pages.pelanggan.simpanPelanggan();
 });
 
+// =============================================================================
+// Login
+// =============================================================================
+
+// open website
+Given("the user open kasiraja website", async () => {
+  await pages.login.open("/");
+});
+
+// login
+When(
+  "the user login with email: {string} and password: {string}",
+  async (email, password) => {
+    await LoginPage.login(email, password);
+  }
+);
+
+// assert header
+Then("the user should see a heading with text {string}", async (text) => {
+  await expect(checkPage.heading).toBeExisting();
+  await expect(checkPage.heading).toHaveTextContaining(text);
+});
+
+// assert an alert
+Then("the user should see an alert with text {string}", async (text) => {
+  await expect(checkPage.alert).toBeExisting();
+  await expect(checkPage.alert).toHaveTextContaining(`${text}`);
+});
+
+// =============================================================================
+// Pelanggan
+// =============================================================================
+// open pelanggan menu
+When("the user open pelanggan menu", async () => {
+  await pages.pelanggan.openPelangganMenu();
+  await expect(PelangganPage.btnTambah).toBeExisting();
+});
+
+// add pelanggan data
+When("the user add pelanggan with this following data:", async (DataTable) => {
+  await expect(PelangganPage.btnSimpan).toBeExisting();
+  const rows = DataTable.hashes();
+  rows.forEach(async (row) => {
+    await pages.pelanggan.setPelangganData(
+      row.name,
+      row.phoneNumber,
+      row.address,
+      row.note
+    );
+  });
+});

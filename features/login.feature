@@ -1,12 +1,15 @@
-Feature: The Internet Guinea Pig Website
+Feature: Login into kasiraja website
 
-  Scenario Outline: As a user, I can log into the secure area
+  # negative test
+  Scenario: Failed login into kasiraja
 
-    Given I am on the login page
-    When I login with <username> and <password>
-    Then I should see a flash message saying <message>
+    Given the user open kasiraja website
+    When the user login with email: "makani@kucing.com" and password: "12345678"
+    Then the user should see an alert with text "Kredensial yang Anda berikan salah"
 
-    Examples:
-      | username | password             | message                        |
-      | tomsmith | SuperSecretPassword! | You logged into a secure area! |
-      | foobar   | barfoo               | Your username is invalid!      |
+  # positive test
+  Scenario: Success login into kasiraja
+
+    Given the user open kasiraja website
+    When the user login with email: "makani@ternak.com" and password: "12345678"
+    Then the user should see a heading with text "kasirAja"
